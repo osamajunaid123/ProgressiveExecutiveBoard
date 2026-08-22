@@ -254,6 +254,14 @@
   }
   .btn-mini:hover{ background:var(--gold); color:var(--card); }
 
+  .pin-input{
+    width:100%; text-align:center; font-size:26px; letter-spacing:14px;
+    font-family:Georgia,serif; padding:14px 0 !important;
+  }
+  .pin-error{
+    display:none; color:#B5493D; font-size:12.5px; margin-top:8px; text-align:center;
+  }
+
   .modal-overlay{
     display:none; position:fixed; inset:0; background:rgba(28,39,51,0.45);
     align-items:center; justify-content:center; z-index:100;
@@ -465,6 +473,22 @@
   </div>
 </div>
 
+<!-- ===== PIN Modal ===== -->
+<div class="modal-overlay" id="pinModalOverlay">
+  <div class="modal-box" style="width:340px; text-align:center;">
+    <h3 class="serif" id="pinModalTitle">Enter PIN</h3>
+    <div class="modal-sub">4-digit PIN daalein apna board kholne k liye</div>
+    <div class="modal-field">
+      <input type="password" id="pinInput" class="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off">
+      <div class="pin-error" id="pinError"></div>
+    </div>
+    <div class="modal-actions" style="justify-content:center;">
+      <button class="btn" id="pinCancelBtn">Cancel</button>
+      <button class="btn primary" id="pinSubmitBtn">Unlock</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -509,7 +533,7 @@ function buildLanding(){
     return;
   }
   grid.innerHTML = owners.map(name => `
-    <div class="name-card" onclick="selectUser('${name.replace(/'/g,"\\'")}')">
+    <div class="name-card" onclick="attemptSelectUser('${name.replace(/'/g,"\\'")}')">
       <div class="avatar serif">${initials(name)}</div>
       <div class="nm">${name}</div>
       <div class="ct">${tasks.filter(t=>t.owner===name && t.status!=='Done').length} open tasks</div>
@@ -1108,6 +1132,72 @@ async function submitQuickAdd(){
 function formatDisplayDate(d){
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// ===== PIN Verification =====
+let pinModalName = null;
+
+function attemptSelectUser(name){
+  if(localStorage.getItem('exec_board_verified_' + name) === 'true'){
+    selectUser(name);
+  } else {
+    openPinModal(name);
+  }
+}
+
+function openPinModal(name){
+  pinModalName = name;
+  document.getElementById('pinModalTitle').textContent = name;
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinError').style.display = 'none';
+  document.getElementById('pinModalOverlay').classList.add('show');
+  setTimeout(()=>document.getElementById('pinInput').focus(), 50);
+}
+
+function closePinModal(){
+  document.getElementById('pinModalOverlay').classList.remove('show');
+  pinModalName = null;
+}
+
+document.getElementById('pinCancelBtn').addEventListener('click', closePinModal);
+document.getElementById('pinModalOverlay').addEventListener('click', e=>{
+  if(e.target.id === 'pinModalOverlay') closePinModal();
+});
+document.getElementById('pinInput').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') submitPin();
+});
+document.getElementById('pinSubmitBtn').addEventListener('click', submitPin);
+
+function showPinError(msg){
+  const el = document.getElementById('pinError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function submitPin(){
+  const pin = document.getElementById('pinInput').value.trim();
+  if(pin.length !== 4 || !/^\d{4}$/.test(pin)){
+    showPinError('4 digit PIN daalein');
+    return;
+  }
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ type:'login', name: pinModalName, pin: pin })
+    });
+    const result = await res.json();
+    if(result.success){
+      localStorage.setItem('exec_board_verified_' + pinModalName, 'true');
+      const name = pinModalName;
+      closePinModal();
+      selectUser(name);
+    } else {
+      showPinError('Galat PIN — dobara koshish karein');
+    }
+  }catch(err){
+    showPinError('Connection error — dobara try karein');
+  }
 }
 
 fetchTasks();
