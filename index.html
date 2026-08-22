@@ -262,6 +262,16 @@
     display:none; color:#B5493D; font-size:12.5px; margin-top:8px; text-align:center;
   }
 
+  .edit-log-item{
+    font-size:11.5px; color:var(--muted); padding:5px 0; border-top:1px solid var(--line);
+  }
+  .edit-log-item:first-child{ border-top:none; }
+  .edit-icon-btn{
+    background:none; border:1px solid var(--line); border-radius:20px;
+    font-size:12px; color:var(--muted); padding:6px 14px; cursor:pointer;
+  }
+  .edit-icon-btn:hover{ color:var(--gold); border-color:var(--gold-soft); }
+
   .modal-overlay{
     display:none; position:fixed; inset:0; background:rgba(28,39,51,0.45);
     align-items:center; justify-content:center; z-index:100;
@@ -939,6 +949,19 @@ function openTaskDetail(row){
     `;
   }
 
+  let editLogBlock = '';
+  if(task.editLog){
+    const lines = task.editLog.split('\n').filter(Boolean).reverse();
+    editLogBlock = `
+      <div class="detail-section">
+        <div class="detail-section-label">Edit history</div>
+        ${lines.map(l => `<div class="edit-log-item">${escapeHtml(l)}</div>`).join('')}
+      </div>
+    `;
+  }
+
+  const canEdit = task.assignedBy && task.assignedBy === currentUser;
+
   document.getElementById('detailModalBox').innerHTML = `
     ${task.meetingTopic ? `<div class="detail-topic"><span class="card-topic">${escapeHtml(task.meetingTopic)}</span></div>` : ''}
     <div class="detail-action">${escapeHtml(task.action)}</div>
@@ -951,11 +974,73 @@ function openTaskDetail(row){
     ${task.notes ? `<div class="detail-section"><div class="detail-section-label">Notes</div><div class="detail-notes">${escapeHtml(task.notes)}</div></div>` : ''}
     ${ownDep}
     ${incomingBlock}
+    ${editLogBlock}
     <div class="modal-actions">
+      ${canEdit ? `<button class="edit-icon-btn" onclick="openEditForm(${task.row})">✏️ Edit task</button>` : ''}
       <button class="btn" onclick="closeDetailModal()">Close</button>
     </div>
   `;
   document.getElementById('detailModalOverlay').classList.add('show');
+}
+
+function openEditForm(row){
+  const task = tasks.find(t => String(t.row) === String(row));
+  if(!task) return;
+
+  document.getElementById('detailModalBox').innerHTML = `
+    <h3 class="serif" style="margin-bottom:16px;">Edit task</h3>
+    <div class="modal-field">
+      <label>Task</label>
+      <textarea id="editActionInput">${escapeHtml(task.action)}</textarea>
+    </div>
+    <div class="modal-field">
+      <label>Due date</label>
+      <input type="date" id="editDueInput" value="${task.dueDate ? isoFromDisplay(task.dueDate) : ''}">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="openTaskDetail(${row})">Cancel</button>
+      <button class="btn primary" onclick="saveTaskEdit(${row})">Save changes</button>
+    </div>
+  `;
+}
+
+function isoFromDisplay(displayDate){
+  // displayDate formats we produce: "dd MMM yyyy" (from sheet) or "DD Mon YYYY" (from quick add)
+  const d = new Date(displayDate);
+  if(isNaN(d)) return '';
+  return toISODate(d);
+}
+
+async function saveTaskEdit(row){
+  const newAction = document.getElementById('editActionInput').value.trim();
+  const newDueRaw = document.getElementById('editDueInput').value;
+
+  if(!newAction){ showToast('Task ka text khali nahi ho sakta'); return; }
+
+  const task = tasks.find(t => String(t.row) === String(row));
+  const oldAction = task ? task.action : '';
+  const oldDue = task ? task.dueDate : '';
+
+  if(task){
+    task.action = newAction;
+    if(newDueRaw) task.dueDate = formatDisplayDate(new Date(newDueRaw + 'T00:00:00'));
+  }
+  closeDetailModal();
+  renderBoard();
+  showToast('Saved');
+
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ type:'editTask', row: Number(row), newAction, newDueDate: newDueRaw, editor: currentUser })
+    });
+    const result = await res.json();
+    if(task && result.editLog) task.editLog = result.editLog;
+  }catch(err){
+    showToast('Save nahi ho saka — dobara try karein');
+    if(task){ task.action = oldAction; task.dueDate = oldDue; renderBoard(); }
+  }
 }
 
 function closeDetailModal(){
@@ -1120,7 +1205,8 @@ async function submitQuickAdd(){
       meetingTopic: 'Quick Task',
       dependencyOwner: '', dependencyTaskRow: '', dependencyNote: '',
       dependencyResponse: '', dependencyResolved: false,
-      assignedBy: currentUser
+      assignedBy: currentUser,
+      editLog: ''
     });
     renderBoard();
     showToast('Task added for ' + matchedOwner);
