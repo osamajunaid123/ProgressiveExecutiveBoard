@@ -80,6 +80,24 @@
     transform:translateY(-3px);
     border-color:var(--gold-soft);
   }
+  .skeleton-card{
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:22px 26px; min-width:150px;
+  }
+  .skeleton-avatar{
+    width:52px; height:52px; border-radius:50%; margin:0 auto 12px auto;
+    background:linear-gradient(90deg, var(--line) 25%, #ECE8DC 37%, var(--line) 63%);
+    background-size:400% 100%; animation:shimmer 1.4s ease infinite;
+  }
+  .skeleton-line{
+    height:11px; border-radius:6px; margin:0 auto;
+    background:linear-gradient(90deg, var(--line) 25%, #ECE8DC 37%, var(--line) 63%);
+    background-size:400% 100%; animation:shimmer 1.4s ease infinite;
+  }
+  @keyframes shimmer{ 0%{ background-position:100% 0; } 100%{ background-position:0 0; } }
+  .loading-hint{
+    margin-top:18px; font-size:12px; color:var(--muted);
+  }
   .avatar{
     width:52px;height:52px;border-radius:50%;
     background:var(--ink);
@@ -472,8 +490,11 @@
   <h1 class="landing-title serif">Executive <em>Board</em></h1>
   <div class="landing-sub">Apna naam select karein apne action items dekhne k liye</div>
   <div class="name-grid" id="nameGrid">
-    <div class="empty-state" style="grid-column:1/-1;">Loading names…</div>
+    <div class="skeleton-card"><div class="skeleton-avatar"></div><div class="skeleton-line" style="width:70px; height:12px; margin-bottom:6px;"></div><div class="skeleton-line" style="width:55px;"></div></div>
+    <div class="skeleton-card"><div class="skeleton-avatar"></div><div class="skeleton-line" style="width:70px; height:12px; margin-bottom:6px;"></div><div class="skeleton-line" style="width:55px;"></div></div>
+    <div class="skeleton-card"><div class="skeleton-avatar"></div><div class="skeleton-line" style="width:70px; height:12px; margin-bottom:6px;"></div><div class="skeleton-line" style="width:55px;"></div></div>
   </div>
+  <div class="loading-hint" id="loadingHint">Sheet se connect ho raha hai, thoda intezar karein…</div>
 </div>
 
 <!-- ===== BOARD ===== -->
@@ -636,14 +657,16 @@ async function fetchTasks(){
     buildLanding();
     if(currentUser) renderBoard();
   }catch(err){
-    document.getElementById('nameGrid').innerHTML =
-      '<div class="empty-state" style="grid-column:1/-1;">Connection nahi ho pa rahi. Apps Script URL check karein.</div>';
+    const hint = document.getElementById('loadingHint');
+    if(hint) hint.textContent = 'Connection nahi ho pa rahi. Internet check karein, dobara try ho raha hai…';
   }
 }
 
 function buildLanding(){
   const owners = [...new Set(tasks.map(t=>t.owner).filter(Boolean))].sort();
   const grid = document.getElementById('nameGrid');
+  const hint = document.getElementById('loadingHint');
+  if(hint) hint.style.display = 'none';
   if(owners.length === 0){
     grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">Koi tasks nahi milay.</div>';
     return;
