@@ -17,6 +17,7 @@
     --pending:#B8892B;
     --process:#3C6E8F;
     --done:#4C7A5A;
+    --lost:#A15C4A;
     --shadow: 0 1px 2px rgba(28,39,51,0.06), 0 4px 14px rgba(28,39,51,0.06);
   }
   *{box-sizing:border-box;}
@@ -128,9 +129,38 @@
   }
   .view-filter select:hover{ border-color:var(--gold-soft); }
 
+  .qt-toggle{
+    font-family:inherit; font-size:12.5px; color:var(--muted);
+    background:var(--paper); border:1px solid var(--line); border-radius:20px;
+    padding:7px 14px; cursor:pointer;
+  }
+  .qt-toggle.active{ background:var(--ink); color:var(--card); border-color:var(--ink); }
+
+  .notif-wrap{ position:relative; }
+  .notif-bell{
+    position:relative; background:none; border:1px solid var(--line); border-radius:50%;
+    width:36px; height:36px; font-size:15px; cursor:pointer;
+  }
+  .notif-badge{
+    position:absolute; top:-4px; right:-4px; background:#B5493D; color:#fff;
+    font-size:10px; font-weight:700; border-radius:50%; min-width:16px; height:16px;
+    display:flex; align-items:center; justify-content:center; padding:0 3px;
+  }
+  .notif-dropdown{
+    position:absolute; top:110%; right:0; z-index:50; width:340px; max-height:400px; overflow-y:auto;
+    background:var(--card); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow);
+  }
+  .notif-item{
+    padding:12px 14px; font-size:12.5px; border-bottom:1px solid var(--line); cursor:pointer;
+  }
+  .notif-item:hover{ background:var(--paper); }
+  .notif-item:last-child{ border-bottom:none; }
+  .notif-item.unread{ background:#FBF3E4; }
+  .notif-empty{ padding:20px; text-align:center; color:var(--muted); font-size:12.5px; }
+
   .columns{
     display:grid;
-    grid-template-columns:1fr 1fr 1fr;
+    grid-template-columns:1fr 1fr 1fr 1fr;
     gap:22px;
     padding:28px 34px 60px 34px;
     max-width:1300px;
@@ -272,6 +302,59 @@
   }
   .edit-icon-btn:hover{ color:var(--gold); border-color:var(--gold-soft); }
 
+  .comments-list{ max-height:220px; overflow-y:auto; margin-bottom:10px; }
+  .comment-item{
+    background:var(--paper); border-radius:8px; padding:9px 12px; margin-bottom:8px; font-size:12.5px;
+  }
+  .comment-meta{ display:flex; justify-content:space-between; margin-bottom:4px; }
+  .comment-meta b{ color:var(--ink); font-size:12px; }
+  .comment-meta span{ color:var(--muted); font-size:10.5px; }
+  .comment-text{ color:var(--ink-soft); line-height:1.4; }
+  .comment-input-row{ display:flex; gap:8px; }
+  .comment-input-row input{
+    flex:1; font-family:inherit; font-size:12.5px; border:1px solid var(--line);
+    border-radius:8px; padding:9px 11px; outline:none;
+  }
+  .comment-input-row input:focus{ border-color:var(--gold-soft); }
+
+  .status-dropdown{
+    font-family:inherit; font-size:11px; color:var(--ink); background:var(--paper);
+    border:1px solid var(--line); border-radius:20px; padding:5px 9px; cursor:pointer; outline:none;
+  }
+
+  /* ===== New Meeting Modal ===== */
+  .meeting-modal-box{
+    width:720px; max-width:94vw; max-height:88vh; overflow-y:auto;
+  }
+  .meeting-fields{ display:flex; gap:14px; }
+  .meeting-fields .modal-field{ flex:1; }
+  .notes-textarea{ min-height:150px; font-family:inherit; }
+  .parse-btn-row{ display:flex; justify-content:flex-end; margin-bottom:6px; }
+  .spinner{
+    display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,0.4);
+    border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; margin-right:7px;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .preview-row{
+    display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:8px;
+    align-items:start; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--line);
+  }
+  .preview-row textarea{ min-height:44px; font-size:13px; }
+  .preview-row select, .preview-row input[type=date]{ font-size:12.5px; padding:8px; }
+  .row-remove{
+    background:none; border:none; color:var(--muted); cursor:pointer; font-size:15px; padding:6px;
+  }
+  .row-remove:hover{ color:#B5493D; }
+  .add-row-btn{
+    font-size:12.5px; color:var(--gold); background:none; border:1px dashed var(--gold-soft);
+    border-radius:8px; padding:8px 14px; cursor:pointer; margin-top:4px;
+  }
+  .preview-header{
+    display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:8px;
+    font-size:11px; text-transform:uppercase; color:var(--muted); margin-bottom:8px;
+  }
+
   .modal-overlay{
     display:none; position:fixed; inset:0; background:rgba(28,39,51,0.45);
     align-items:center; justify-content:center; z-index:100;
@@ -370,9 +453,14 @@
   }
   #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
+  @media (max-width:1150px) and (min-width:901px){
+    .columns{ grid-template-columns:1fr 1fr; }
+  }
   @media (max-width:900px){
     .columns{ grid-template-columns:1fr; padding:20px; }
     .board-header{ padding:16px 20px; flex-direction:column; align-items:flex-start; gap:10px; }
+    .board-header > div{ width:100%; flex-wrap:wrap; }
+    .quickadd-wrap{ padding:14px 16px 20px 16px; }
   }
 </style>
 </head>
@@ -395,7 +483,13 @@
       <h1 class="serif">Executive Board</h1>
       <span class="who" id="whoLabel"></span>
     </div>
-    <div style="display:flex; align-items:center; gap:18px;">
+    <div style="display:flex; align-items:center; gap:14px;">
+      <button class="btn primary" id="newMeetingBtn" style="display:none;">+ New Meeting</button>
+      <button class="qt-toggle" id="qtToggleBtn" title="Sirf Quick Tasks dekhein">⚡ Quick Tasks</button>
+      <div class="notif-wrap">
+        <button class="notif-bell" id="notifBell">🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>
+        <div class="notif-dropdown" id="notifDropdown" style="display:none;"></div>
+      </div>
       <div class="view-filter">
         <label for="viewSelect">Viewing:</label>
         <select id="viewSelect"></select>
@@ -418,6 +512,10 @@
     <div class="col">
       <div class="col-head"><span class="dot" style="background:var(--done)"></span><h3>Complete</h3><span class="col-count" id="countDone">0</span></div>
       <div class="dropzone" id="colDone" data-status="Done"></div>
+    </div>
+    <div class="col">
+      <div class="col-head"><span class="dot" style="background:var(--lost)"></span><h3>Lost</h3><span class="col-count" id="countLost">0</span></div>
+      <div class="dropzone" id="colLost" data-status="Lost"></div>
     </div>
   </div>
 
@@ -483,6 +581,13 @@
   </div>
 </div>
 
+<!-- ===== New Meeting Modal ===== -->
+<div class="modal-overlay" id="meetingModalOverlay">
+  <div class="modal-box meeting-modal-box" id="meetingModalBox">
+    <!-- content injected dynamically -->
+  </div>
+</div>
+
 <!-- ===== PIN Modal ===== -->
 <div class="modal-overlay" id="pinModalOverlay">
   <div class="modal-box" style="width:340px; text-align:center;">
@@ -510,6 +615,7 @@ const REFRESH_INTERVAL_MS = 20000;
 let tasks = [];
 let currentUser = null;
 let viewFilter = 'mine'; // 'mine' | 'all' | a specific owner name
+let quickTasksOnly = false;
 let draggedCard = null;
 
 function initials(name){
@@ -557,6 +663,7 @@ function selectUser(name){
   document.getElementById('landing').style.display = 'none';
   document.getElementById('board').style.display = 'block';
   document.getElementById('whoLabel').textContent = name;
+  document.getElementById('newMeetingBtn').style.display = (name === 'Osama') ? 'inline-block' : 'none';
   populateViewSelect();
   renderBoard();
 }
@@ -583,6 +690,12 @@ function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;'); }
 
 document.getElementById('viewSelect').addEventListener('change', e=>{
   viewFilter = e.target.value;
+  renderBoard();
+});
+
+document.getElementById('qtToggleBtn').addEventListener('click', ()=>{
+  quickTasksOnly = !quickTasksOnly;
+  document.getElementById('qtToggleBtn').classList.toggle('active', quickTasksOnly);
   renderBoard();
 });
 
@@ -616,6 +729,17 @@ function cardHTML(task){
     depBlock = `<button class="dep-btn" onclick="event.stopPropagation(); openDepModal(${task.row})">@ Add dependency</button>`;
   }
 
+  const statusDropdown = mine ? `
+    <select class="status-dropdown" onclick="event.stopPropagation()" onchange="changeStatusDropdown(${task.row}, this.value)">
+      <option value="Pending" ${task.status==='Pending'?'selected':''}>Pending</option>
+      <option value="In Progress" ${task.status==='In Progress'?'selected':''}>In Process</option>
+      <option value="Done" ${task.status==='Done'?'selected':''}>Complete</option>
+      <option value="Lost" ${task.status==='Lost'?'selected':''}>Lost</option>
+    </select>
+  ` : '';
+
+  const commentCount = task.comments ? task.comments.length : 0;
+
   return `
     <div class="card ${mine ? 'mine' : 'locked'}" draggable="${mine}" data-row="${task.row}" onclick="openTaskDetail(${task.row})">
       ${task.meetingTopic ? `<div class="card-topic">${escapeHtml(task.meetingTopic)}</div>` : ''}
@@ -627,6 +751,10 @@ function cardHTML(task){
       ${task.assignedBy && task.assignedBy !== task.owner ? `<div class="card-notes" style="font-style:normal; color:var(--muted);">Assigned by ${escapeHtml(task.assignedBy)}</div>` : ''}
       ${task.notes ? `<div class="card-notes">${escapeHtml(task.notes)}</div>` : ''}
       ${depBlock}
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px; gap:8px;">
+        ${statusDropdown}
+        ${commentCount > 0 ? `<span style="font-size:11px; color:var(--muted); white-space:nowrap;">💬 ${commentCount}</span>` : ''}
+      </div>
     </div>
   `;
 }
@@ -643,22 +771,27 @@ function escapeHtml(s){
 }
 
 function visibleTasks(){
-  if(viewFilter === 'mine') return tasks.filter(t => t.owner === currentUser);
-  if(viewFilter === 'all') return tasks;
-  return tasks.filter(t => t.owner === viewFilter); // specific person
+  let base;
+  if(viewFilter === 'mine') base = tasks.filter(t => t.owner === currentUser);
+  else if(viewFilter === 'all') base = tasks;
+  else base = tasks.filter(t => t.owner === viewFilter); // specific person
+
+  if(quickTasksOnly) base = base.filter(t => t.meetingTopic === 'Quick Task');
+  return base;
 }
 
 function renderBoard(){
   const cols = {
     'Pending': document.getElementById('colPending'),
     'In Progress': document.getElementById('colProcess'),
-    'Done': document.getElementById('colDone')
+    'Done': document.getElementById('colDone'),
+    'Lost': document.getElementById('colLost')
   };
   Object.values(cols).forEach(c => c.innerHTML = '');
 
   const scoped = visibleTasks();
 
-  ['Pending','In Progress','Done'].forEach(status=>{
+  ['Pending','In Progress','Done','Lost'].forEach(status=>{
     const list = scoped.filter(t => (t.status || 'Pending') === status);
     const col = cols[status];
     if(list.length === 0){
@@ -671,8 +804,10 @@ function renderBoard(){
   document.getElementById('countPending').textContent = scoped.filter(t=>(t.status||'Pending')==='Pending').length;
   document.getElementById('countProcess').textContent = scoped.filter(t=>t.status==='In Progress').length;
   document.getElementById('countDone').textContent = scoped.filter(t=>t.status==='Done').length;
+  document.getElementById('countLost').textContent = scoped.filter(t=>t.status==='Lost').length;
 
   renderWaitingBanner();
+  renderNotifications();
   attachDragHandlers();
 }
 
@@ -726,25 +861,33 @@ function attachDragHandlers(){
       if(!draggedCard) return;
       const row = draggedCard.dataset.row;
       const newStatus = zone.dataset.status;
-      const task = tasks.find(t => String(t.row) === String(row));
-      if(!task) return;
-      if(task.status === newStatus) return;
-
-      task.status = newStatus; // optimistic update
-      renderBoard();
-      showToast('Saved');
-
-      try{
-        await fetch(APPS_SCRIPT_URL, {
-          method:'POST',
-          headers:{'Content-Type':'text/plain;charset=utf-8'},
-          body: JSON.stringify({row: Number(row), status: newStatus})
-        });
-      }catch(err){
-        showToast('Save nahi ho saka — dobara try karein');
-      }
+      changeTaskStatus(row, newStatus);
     });
   });
+}
+
+async function changeTaskStatus(row, newStatus){
+  const task = tasks.find(t => String(t.row) === String(row));
+  if(!task) return;
+  if(task.status === newStatus) return;
+
+  task.status = newStatus; // optimistic update
+  renderBoard();
+  showToast('Saved');
+
+  try{
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({row: Number(row), status: newStatus})
+    });
+  }catch(err){
+    showToast('Save nahi ho saka — dobara try karein');
+  }
+}
+
+function changeStatusDropdown(row, newStatus){
+  changeTaskStatus(row, newStatus);
 }
 
 // ===== Dependency Modal =====
@@ -960,6 +1103,27 @@ function openTaskDetail(row){
     `;
   }
 
+  const comments = task.comments || [];
+  const commentsBlock = `
+    <div class="detail-section">
+      <div class="detail-section-label">Comments${comments.length ? ' (' + comments.length + ')' : ''}</div>
+      <div class="comments-list">
+        ${comments.length === 0 ? '<div style="font-size:12.5px; color:var(--muted);">Koi comment nahi abhi</div>' :
+          comments.map(c => `
+            <div class="comment-item">
+              <div class="comment-meta"><b>${escapeHtml(c.author)}</b> <span>${formatCommentTime(c.timestamp)}</span></div>
+              <div class="comment-text">${escapeHtml(c.text)}</div>
+            </div>
+          `).join('')
+        }
+      </div>
+      <div class="comment-input-row">
+        <input type="text" id="newCommentInput" placeholder="Comment likhein…" onkeydown="if(event.key==='Enter') submitComment(${task.row})">
+        <button class="btn-mini" onclick="submitComment(${task.row})">Send</button>
+      </div>
+    </div>
+  `;
+
   const canEdit = task.assignedBy && task.assignedBy === currentUser;
 
   document.getElementById('detailModalBox').innerHTML = `
@@ -974,6 +1138,7 @@ function openTaskDetail(row){
     ${task.notes ? `<div class="detail-section"><div class="detail-section-label">Notes</div><div class="detail-notes">${escapeHtml(task.notes)}</div></div>` : ''}
     ${ownDep}
     ${incomingBlock}
+    ${commentsBlock}
     ${editLogBlock}
     <div class="modal-actions">
       ${canEdit ? `<button class="edit-icon-btn" onclick="openEditForm(${task.row})">✏️ Edit task</button>` : ''}
@@ -981,6 +1146,45 @@ function openTaskDetail(row){
     </div>
   `;
   document.getElementById('detailModalOverlay').classList.add('show');
+}
+
+function formatCommentTime(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return '';
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const h = d.getHours(), m = String(d.getMinutes()).padStart(2,'0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${d.getDate()} ${months[d.getMonth()]}, ${h12}:${m} ${ampm}`;
+}
+
+async function submitComment(row){
+  const input = document.getElementById('newCommentInput');
+  const text = input.value.trim();
+  if(!text) return;
+
+  const task = tasks.find(t => String(t.row) === String(row));
+  if(!task) return;
+  if(!task.comments) task.comments = [];
+
+  const optimisticComment = { timestamp: new Date().toISOString(), author: currentUser, text };
+  task.comments.push(optimisticComment);
+  openTaskDetail(row); // re-render with new comment visible instantly
+  renderBoard();
+
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ type:'addComment', row: Number(row), author: currentUser, text })
+    });
+    const result = await res.json();
+    if(result.success && result.comments){
+      task.comments = result.comments;
+    }
+  }catch(err){
+    showToast('Comment save nahi ho saka');
+  }
 }
 
 function openEditForm(row){
@@ -1206,7 +1410,8 @@ async function submitQuickAdd(){
       dependencyOwner: '', dependencyTaskRow: '', dependencyNote: '',
       dependencyResponse: '', dependencyResolved: false,
       assignedBy: currentUser,
-      editLog: ''
+      editLog: '',
+      comments: []
     });
     renderBoard();
     showToast('Task added for ' + matchedOwner);
@@ -1285,6 +1490,286 @@ async function submitPin(){
     showPinError('Connection error — dobara try karein');
   }
 }
+
+// ===== New Meeting: rough notes -> AI parse -> editable preview -> save =====
+let meetingParsedRows = [];
+
+document.getElementById('newMeetingBtn').addEventListener('click', openMeetingStep1);
+
+function openMeetingStep1(){
+  const today = toISODate(new Date());
+  document.getElementById('meetingModalBox').innerHTML = `
+    <h3 class="serif">New meeting notes</h3>
+    <div class="modal-sub">Rough notes paste karein, AI unhe action items mein tor dega. Aap agle step mein edit/confirm kar sakte hain.</div>
+    <div class="meeting-fields">
+      <div class="modal-field">
+        <label>Meeting topic</label>
+        <input type="text" id="meetingTopicInput" placeholder="e.g. Karachi Sales Reports Review">
+      </div>
+      <div class="modal-field">
+        <label>Meeting date</label>
+        <input type="date" id="meetingDateInput" value="${today}">
+      </div>
+    </div>
+    <div class="modal-field">
+      <label>Rough notes</label>
+      <textarea id="meetingNotesInput" class="notes-textarea" placeholder="Notes paste karein — kisi bhi format mein, messy chalega"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeMeetingModal()">Cancel</button>
+      <button class="btn primary" id="parseNotesBtn">Parse with AI</button>
+    </div>
+  `;
+  document.getElementById('parseNotesBtn').addEventListener('click', parseMeetingNotes);
+  document.getElementById('meetingModalOverlay').classList.add('show');
+}
+
+function closeMeetingModal(){
+  document.getElementById('meetingModalOverlay').classList.remove('show');
+}
+
+document.getElementById('meetingModalOverlay').addEventListener('click', e=>{
+  if(e.target.id === 'meetingModalOverlay') closeMeetingModal();
+});
+
+async function parseMeetingNotes(){
+  const topic = document.getElementById('meetingTopicInput').value.trim();
+  const notes = document.getElementById('meetingNotesInput').value.trim();
+  if(!notes){ showToast('Notes paste karein pehle'); return; }
+
+  const btn = document.getElementById('parseNotesBtn');
+  btn.innerHTML = '<span class="spinner"></span>Parsing…';
+  btn.disabled = true;
+
+  const knownOwners = [...new Set(tasks.map(t=>t.owner).filter(Boolean))];
+
+  try{
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        type: "parseNotes",
+        notes: notes,
+        knownOwners: knownOwners
+      })
+    });
+    const result = await response.json();
+
+    if(!result.success){
+      showToast(result.error || 'Parse nahi ho saka — dobara try karein');
+      btn.innerHTML = 'Parse with AI';
+      btn.disabled = false;
+      return;
+    }
+
+    meetingParsedRows = result.items.map(p => ({
+      action: p.action || '',
+      owner: p.owner || '',
+      dueDate: p.dueDate || '',
+      notes: p.notes || ''
+    }));
+
+    openMeetingStep2(topic, document.getElementById('meetingDateInput').value);
+  }catch(err){
+    showToast('Parse nahi ho saka — dobara try karein');
+    btn.innerHTML = 'Parse with AI';
+    btn.disabled = false;
+  }
+}
+
+function openMeetingStep2(topic, meetingDate){
+  const knownOwners = [...new Set(tasks.map(t=>t.owner).filter(Boolean))].sort();
+
+  document.getElementById('meetingModalBox').innerHTML = `
+    <h3 class="serif">Review & confirm</h3>
+    <div class="modal-sub">${meetingParsedRows.length} action items mile. Edit karein, remove karein, ya naya add karein — phir confirm karein.</div>
+    <div class="preview-header">
+      <div>Action</div><div>Owner</div><div>Due date</div><div></div>
+    </div>
+    <div id="previewRows"></div>
+    <button class="add-row-btn" onclick="addPreviewRow()">+ Add row</button>
+    <div class="modal-actions">
+      <button class="btn" onclick="openMeetingStep1()">Back</button>
+      <button class="btn primary" id="confirmSaveBtn">Confirm & Save All</button>
+    </div>
+  `;
+
+  window._meetingTopic = topic;
+  window._meetingDate = meetingDate;
+  window._knownOwners = knownOwners;
+
+  renderPreviewRows();
+  document.getElementById('confirmSaveBtn').addEventListener('click', saveMeetingTasks);
+}
+
+function renderPreviewRows(){
+  const container = document.getElementById('previewRows');
+  container.innerHTML = meetingParsedRows.map((r, i) => `
+    <div class="preview-row">
+      <textarea onchange="meetingParsedRows[${i}].action=this.value">${escapeHtml(r.action)}</textarea>
+      <select onchange="meetingParsedRows[${i}].owner=this.value">
+        <option value="">— select —</option>
+        ${window._knownOwners.map(o => `<option value="${escapeAttr(o)}" ${o===r.owner?'selected':''}>${escapeHtml(o)}</option>`).join('')}
+        ${r.owner && !window._knownOwners.includes(r.owner) ? `<option value="${escapeAttr(r.owner)}" selected>${escapeHtml(r.owner)} (new)</option>` : ''}
+      </select>
+      <input type="date" value="${r.dueDate || ''}" onchange="meetingParsedRows[${i}].dueDate=this.value">
+      <button class="row-remove" onclick="removePreviewRow(${i})" title="Remove">✕</button>
+    </div>
+  `).join('');
+}
+
+function addPreviewRow(){
+  meetingParsedRows.push({ action:'', owner:'', dueDate:'', notes:'' });
+  renderPreviewRows();
+}
+
+function removePreviewRow(i){
+  meetingParsedRows.splice(i, 1);
+  renderPreviewRows();
+}
+
+async function saveMeetingTasks(){
+  const valid = meetingParsedRows.filter(r => r.action.trim() && r.owner.trim());
+  if(valid.length === 0){ showToast('Kam se kam ek valid row chahiye (action + owner)'); return; }
+
+  const btn = document.getElementById('confirmSaveBtn');
+  btn.innerHTML = '<span class="spinner"></span>Saving…';
+  btn.disabled = true;
+
+  const topic = window._meetingTopic;
+  const meetingDate = window._meetingDate;
+
+  try{
+    for(const r of valid){
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({
+          type:'newTask',
+          action: r.action.trim(),
+          owner: r.owner.trim(),
+          dueDate: r.dueDate || '',
+          notes: r.notes || '',
+          meetingTopic: topic || 'Meeting',
+          meetingDate: meetingDate || '',
+          assignedBy: currentUser
+        })
+      });
+      const result = await res.json();
+      tasks.push({
+        row: result.row,
+        action: r.action.trim(),
+        owner: r.owner.trim(),
+        assignedDate: toISODate(new Date()),
+        dueDate: r.dueDate ? formatDisplayDate(new Date(r.dueDate + 'T00:00:00')) : '',
+        status: 'Pending',
+        notes: r.notes || '',
+        meetingTopic: topic || 'Meeting',
+        dependencyOwner:'', dependencyTaskRow:'', dependencyNote:'',
+        dependencyResponse:'', dependencyResolved:false,
+        assignedBy: currentUser,
+        editLog: '',
+        comments: []
+      });
+    }
+    closeMeetingModal();
+    renderBoard();
+    showToast(valid.length + ' tasks added');
+  }catch(err){
+    showToast('Kuch tasks save nahi ho sake — dobara try karein');
+    btn.innerHTML = 'Confirm & Save All';
+    btn.disabled = false;
+  }
+}
+
+// ===== Notifications =====
+function getSeenSet(){
+  try{
+    const raw = localStorage.getItem('exec_board_seen_' + currentUser);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  }catch(e){ return new Set(); }
+}
+
+function markSeen(id){
+  const seen = getSeenSet();
+  seen.add(id);
+  localStorage.setItem('exec_board_seen_' + currentUser, JSON.stringify([...seen]));
+}
+
+function computeNotifications(){
+  if(!currentUser) return [];
+  const seen = getSeenSet();
+  const items = [];
+
+  tasks.forEach(t=>{
+    // Naya task jo kisi ne aapko assign kiya (khud ko diya hua nahi)
+    if(t.owner === currentUser && t.assignedBy && t.assignedBy !== currentUser){
+      const id = 'assign_' + t.row;
+      items.push({ id, row: t.row, unread: !seen.has(id), text: `${t.assignedBy} ne aapko assign kiya: "${truncate(t.action,50)}"` });
+    }
+    // Dependency jo aap pe tag hui ho
+    if(t.dependencyOwner === currentUser && !t.dependencyResolved){
+      const id = 'dep_' + t.row;
+      items.push({ id, row: t.row, unread: !seen.has(id), text: `${t.owner} aap se wait kar raha hai: "${truncate(t.action,50)}"` });
+    }
+    // Dependency resolve hone pe (aapko reply mila)
+    if(t.owner === currentUser && t.dependencyResolved && t.dependencyResponse){
+      const id = 'depres_' + t.row;
+      items.push({ id, row: t.row, unread: !seen.has(id), text: `${t.dependencyOwner} ne reply diya: "${truncate(t.dependencyResponse,50)}"` });
+    }
+    // Naya comment (aapke apne task pe, kisi aur ne likha ho)
+    if(t.owner === currentUser && t.comments && t.comments.length > 0){
+      const last = t.comments[t.comments.length - 1];
+      if(last.author !== currentUser){
+        const id = 'comment_' + t.row + '_' + t.comments.length;
+        items.push({ id, row: t.row, unread: !seen.has(id), text: `${last.author} ne comment kiya: "${truncate(last.text,50)}"` });
+      }
+    }
+  });
+
+  return items;
+}
+
+function renderNotifications(){
+  const notifs = computeNotifications();
+  const unreadCount = notifs.filter(n=>n.unread).length;
+  const badge = document.getElementById('notifBadge');
+  if(unreadCount > 0){
+    badge.style.display = 'flex';
+    badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+  } else {
+    badge.style.display = 'none';
+  }
+
+  const dropdown = document.getElementById('notifDropdown');
+  if(notifs.length === 0){
+    dropdown.innerHTML = '<div class="notif-empty">Koi notification nahi</div>';
+  } else {
+    dropdown.innerHTML = notifs.map(n => `
+      <div class="notif-item ${n.unread ? 'unread' : ''}" onclick="openNotification('${n.id}', ${n.row})">${escapeHtml(n.text)}</div>
+    `).join('');
+  }
+}
+
+function openNotification(id, row){
+  markSeen(id);
+  document.getElementById('notifDropdown').style.display = 'none';
+  renderNotifications();
+  openTaskDetail(row);
+}
+
+document.getElementById('notifBell').addEventListener('click', e=>{
+  e.stopPropagation();
+  const dropdown = document.getElementById('notifDropdown');
+  dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+});
+
+document.addEventListener('click', e=>{
+  const wrap = document.querySelector('.notif-wrap');
+  if(wrap && !wrap.contains(e.target)){
+    document.getElementById('notifDropdown').style.display = 'none';
+  }
+});
 
 fetchTasks();
 setInterval(fetchTasks, REFRESH_INTERVAL_MS);
