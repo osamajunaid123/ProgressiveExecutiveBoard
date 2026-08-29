@@ -355,7 +355,7 @@
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
   .preview-row{
-    display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:8px;
+    display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:8px;
     align-items:start; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--line);
   }
   .preview-row textarea{ min-height:44px; font-size:13px; }
@@ -369,7 +369,7 @@
     border-radius:8px; padding:8px 14px; cursor:pointer; margin-top:4px;
   }
   .preview-header{
-    display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:8px;
+    display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:8px;
     font-size:11px; text-transform:uppercase; color:var(--muted); margin-bottom:8px;
   }
 
@@ -1588,11 +1588,12 @@ async function parseMeetingNotes(){
     meetingParsedRows = result.items.map(p => ({
       action: p.action || '',
       owner: p.owner || '',
+      assignedBy: p.assignedBy || '',
       dueDate: p.dueDate || '',
       notes: p.notes || ''
     }));
 
-    openMeetingStep2(topic, document.getElementById('meetingDateInput').value);
+    openMeetingStep2(topic, document.getElementById('meetingDateInput').value, result.attendees || '', result.summary || '');
   }catch(err){
     showToast('Parse nahi ho saka — dobara try karein');
     btn.innerHTML = 'Parse with AI';
@@ -1600,14 +1601,22 @@ async function parseMeetingNotes(){
   }
 }
 
-function openMeetingStep2(topic, meetingDate){
+function openMeetingStep2(topic, meetingDate, attendees, summary){
   const knownOwners = [...new Set(tasks.map(t=>t.owner).filter(Boolean))].sort();
 
   document.getElementById('meetingModalBox').innerHTML = `
     <h3 class="serif">Review & confirm</h3>
-    <div class="modal-sub">${meetingParsedRows.length} action items mile. Edit karein, remove karein, ya naya add karein — phir confirm karein.</div>
+    <div class="modal-sub">${meetingParsedRows.length} action items mile. Meeting Log k liye attendees/summary bhi check kar lein, phir action items edit karein.</div>
+    <div class="modal-field">
+      <label>Attendees</label>
+      <input type="text" id="meetingAttendeesInput" value="${escapeAttr(attendees || '')}" placeholder="e.g. Ahsan (Director), Hassan Nazeer (RSM-Karachi)">
+    </div>
+    <div class="modal-field">
+      <label>Key discussion points (Meeting Log k liye)</label>
+      <textarea id="meetingSummaryInput" style="min-height:80px;">${escapeHtml(summary || '')}</textarea>
+    </div>
     <div class="preview-header">
-      <div>Action</div><div>Owner</div><div>Due date</div><div></div>
+      <div>Action</div><div>Owner</div><div>Assigned By</div><div>Due date</div><div></div>
     </div>
     <div id="previewRows"></div>
     <button class="add-row-btn" onclick="addPreviewRow()">+ Add row</button>
@@ -1635,6 +1644,11 @@ function renderPreviewRows(){
         ${window._knownOwners.map(o => `<option value="${escapeAttr(o)}" ${o===r.owner?'selected':''}>${escapeHtml(o)}</option>`).join('')}
         ${r.owner && !window._knownOwners.includes(r.owner) ? `<option value="${escapeAttr(r.owner)}" selected>${escapeHtml(r.owner)} (new)</option>` : ''}
       </select>
+      <select onchange="meetingParsedRows[${i}].assignedBy=this.value">
+        <option value="">Osama (default)</option>
+        ${window._knownOwners.map(o => `<option value="${escapeAttr(o)}" ${o===r.assignedBy?'selected':''}>${escapeHtml(o)}</option>`).join('')}
+        ${r.assignedBy && !window._knownOwners.includes(r.assignedBy) ? `<option value="${escapeAttr(r.assignedBy)}" selected>${escapeHtml(r.assignedBy)} (new)</option>` : ''}
+      </select>
       <input type="date" value="${r.dueDate || ''}" onchange="meetingParsedRows[${i}].dueDate=this.value">
       <button class="row-remove" onclick="removePreviewRow(${i})" title="Remove">✕</button>
     </div>
@@ -1642,7 +1656,7 @@ function renderPreviewRows(){
 }
 
 function addPreviewRow(){
-  meetingParsedRows.push({ action:'', owner:'', dueDate:'', notes:'' });
+  meetingParsedRows.push({ action:'', owner:'', assignedBy:'', dueDate:'', notes:'' });
   renderPreviewRows();
 }
 
@@ -1661,9 +1675,12 @@ async function saveMeetingTasks(){
 
   const topic = window._meetingTopic;
   const meetingDate = window._meetingDate;
+  const attendees = document.getElementById('meetingAttendeesInput').value.trim();
+  const discussionPoints = document.getElementById('meetingSummaryInput').value.trim();
 
   try{
     for(const r of valid){
+      const rowAssignedBy = r.assignedBy && r.assignedBy.trim() ? r.assignedBy.trim() : currentUser;
       const res = await fetch(APPS_SCRIPT_URL, {
         method:'POST',
         headers:{'Content-Type':'text/plain;charset=utf-8'},
@@ -1675,7 +1692,7 @@ async function saveMeetingTasks(){
           notes: r.notes || '',
           meetingTopic: topic || 'Meeting',
           meetingDate: meetingDate || '',
-          assignedBy: currentUser
+          assignedBy: rowAssignedBy
         })
       });
       const result = await res.json();
@@ -1690,11 +1707,26 @@ async function saveMeetingTasks(){
         meetingTopic: topic || 'Meeting',
         dependencyOwner:'', dependencyTaskRow:'', dependencyNote:'',
         dependencyResponse:'', dependencyResolved:false,
-        assignedBy: currentUser,
+        assignedBy: rowAssignedBy,
         editLog: '',
         comments: []
       });
     }
+
+    // Meeting Log tab mein bhi ek summary row add karein
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({
+        type:'saveMeetingLog',
+        date: meetingDate || toISODate(new Date()),
+        topic: topic || 'Meeting',
+        attendees: attendees,
+        discussionPoints: discussionPoints,
+        itemCount: valid.length
+      })
+    });
+
     closeMeetingModal();
     renderBoard();
     showToast(valid.length + ' tasks added');
