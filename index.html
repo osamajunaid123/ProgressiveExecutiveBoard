@@ -629,7 +629,7 @@
 
 <script>
 // ====== CONFIG — apne Apps Script deployment ka URL yahan paste karein ======
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_rJ48PyvoNQzaAIGBxI5dfwm5EErMVktR18L6XyeVmmFx7FrGcIDIqRgeUTDwNmKF/exec";
+const APPS_SCRIPT_URL = "https://executive-board-proxy.progressivegrouposama.workers.dev";
 const REFRESH_INTERVAL_MS = 20000;
 // =============================================================================
 
@@ -701,8 +701,10 @@ function populateViewSelect(){
   const sel = document.getElementById('viewSelect');
   const owners = [...new Set(tasks.map(t=>t.owner).filter(Boolean))].sort();
   const others = owners.filter(o => o !== currentUser);
+  const assignedByMeCount = tasks.filter(t => t.assignedBy === currentUser && t.owner !== currentUser).length;
   sel.innerHTML = `
     <option value="mine">My Tasks</option>
+    <option value="assignedByMe">Assigned by Me${assignedByMeCount ? ' (' + assignedByMeCount + ')' : ''}</option>
     <option value="all">All (everyone)</option>
     ${others.map(o => `<option value="${escapeAttr(o)}">${escapeHtml(o)}</option>`).join('')}
   `;
@@ -796,6 +798,7 @@ function escapeHtml(s){
 function visibleTasks(){
   let base;
   if(viewFilter === 'mine') base = tasks.filter(t => t.owner === currentUser);
+  else if(viewFilter === 'assignedByMe') base = tasks.filter(t => t.assignedBy === currentUser && t.owner !== currentUser);
   else if(viewFilter === 'all') base = tasks;
   else base = tasks.filter(t => t.owner === viewFilter); // specific person
 
