@@ -786,7 +786,11 @@ function cardHTML(task){
 
 function truncate(s, n){
   if(!s) return '';
-  return s.length > n ? s.slice(0, n) + '…' : s;
+  if(s.length <= n) return s;
+  const cut = s.slice(0, n);
+  const lastSpace = cut.lastIndexOf(' ');
+  const clean = lastSpace > n * 0.6 ? cut.slice(0, lastSpace) : cut; // bohat chhota na ho jaye isliye 60% threshold
+  return clean.trim() + '…';
 }
 
 function escapeHtml(s){
@@ -849,7 +853,7 @@ function renderWaitingBanner(){
         let linkedText = 'a general item';
         if(t.dependencyTaskRow){
           const linked = tasks.find(x => String(x.row) === String(t.dependencyTaskRow));
-          if(linked) linkedText = `"${truncate(linked.action, 55)}"`;
+          if(linked) linkedText = `"${escapeHtml(linked.action)}"`;
         }
         return `<div class="waiting-item">
           <span class="wi-text"><b>${escapeHtml(t.owner)}</b> is waiting on you for ${linkedText} — regarding: <span class="wi-note">"${escapeHtml(t.action)}"</span>${t.dependencyNote ? ` <span class="wi-note">(${escapeHtml(t.dependencyNote)})</span>` : ''}</span>
@@ -1081,7 +1085,7 @@ function openTaskDetail(row){
     let linkedText = 'a general item';
     if(task.dependencyTaskRow){
       const linked = tasks.find(t => String(t.row) === String(task.dependencyTaskRow));
-      if(linked) linkedText = `"${truncate(linked.action, 60)}"`;
+      if(linked) linkedText = `"${escapeHtml(linked.action)}"`;
     }
     if(task.dependencyResolved){
       ownDep = `
@@ -1108,7 +1112,7 @@ function openTaskDetail(row){
         ${incoming.map(t => `
           <div class="incoming-item">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-              <span>${t.dependencyResolved ? '✅' : '⏳'} <b>${escapeHtml(t.owner)}</b> — "${escapeHtml(truncate(t.action, 55))}"</span>
+              <span>${t.dependencyResolved ? '✅' : '⏳'} <b>${escapeHtml(t.owner)}</b> — "${escapeHtml(t.action)}"</span>
               ${(!t.dependencyResolved && t.dependencyOwner === currentUser) ? `<button class="btn-mini" onclick="openResolveModal(${t.row})">Reply</button>` : ''}
             </div>
             ${t.dependencyResolved && t.dependencyResponse ? `<span class="ii-note">Reply: ${escapeHtml(t.dependencyResponse)}</span>` : (t.dependencyNote ? `<span class="ii-note">${escapeHtml(t.dependencyNote)}</span>` : '')}
