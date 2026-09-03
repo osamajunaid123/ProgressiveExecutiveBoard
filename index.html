@@ -282,10 +282,16 @@
     background:#FBF3E4; border:1px solid var(--gold-soft);
     border-radius:10px; padding:16px 20px;
   }
+  .waiting-box.rel-box{ background:#EFF4F7; border-color:#B8D3E0; }
   .waiting-box h4{
     margin:0 0 10px 0; font-size:13px; color:var(--ink);
     display:flex; align-items:center; gap:8px;
   }
+  .rel-subhead{
+    font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted);
+    margin:12px 0 6px 0;
+  }
+  .rel-subhead:first-of-type{ margin-top:0; }
   .waiting-item{
     font-size:13px; color:var(--ink-soft); padding:8px 0;
     border-top:1px solid rgba(184,137,43,0.2);
@@ -520,6 +526,7 @@
   </div>
 
   <div class="waiting-banner" id="waitingBanner"></div>
+  <div class="waiting-banner" id="relationshipBanner"></div>
 
   <div class="columns">
     <div class="col">
@@ -837,6 +844,7 @@ function renderBoard(){
   document.getElementById('countLost').textContent = scoped.filter(t=>t.status==='Lost').length;
 
   renderWaitingBanner();
+  renderRelationshipBanner();
   renderNotifications();
   attachDragHandlers();
 }
@@ -860,6 +868,41 @@ function renderWaitingBanner(){
           <button class="btn-mini" onclick="openResolveModal(${t.row})">Reply & Resolve</button>
         </div>`;
       }).join('')}
+    </div>
+  `;
+}
+
+function renderRelationshipBanner(){
+  const el = document.getElementById('relationshipBanner');
+  const isPersonView = viewFilter !== 'mine' && viewFilter !== 'all' && viewFilter !== 'assignedByMe';
+  if(!isPersonView){ el.innerHTML = ''; return; }
+
+  const otherPerson = viewFilter;
+  const theirsWaitingOnMe = tasks.filter(t => t.owner === otherPerson && t.dependencyOwner === currentUser && !t.dependencyResolved);
+  const minesWaitingOnThem = tasks.filter(t => t.owner === currentUser && t.dependencyOwner === otherPerson && !t.dependencyResolved);
+
+  if(theirsWaitingOnMe.length === 0 && minesWaitingOnThem.length === 0){ el.innerHTML = ''; return; }
+
+  el.innerHTML = `
+    <div class="waiting-box rel-box">
+      <h4>🔗 ${escapeHtml(otherPerson)} & You</h4>
+      ${theirsWaitingOnMe.length > 0 ? `
+        <div class="rel-subhead">${escapeHtml(otherPerson)}'s tasks waiting on you (${theirsWaitingOnMe.length})</div>
+        ${theirsWaitingOnMe.map(t => `
+          <div class="waiting-item">
+            <span class="wi-text" style="cursor:pointer;" onclick="openTaskDetail(${t.row})">"${escapeHtml(t.action)}"${t.dependencyNote ? ` <span class="wi-note">(${escapeHtml(t.dependencyNote)})</span>` : ''}</span>
+            <button class="btn-mini" onclick="openResolveModal(${t.row})">Reply & Resolve</button>
+          </div>
+        `).join('')}
+      ` : ''}
+      ${minesWaitingOnThem.length > 0 ? `
+        <div class="rel-subhead">Your tasks waiting on ${escapeHtml(otherPerson)} (${minesWaitingOnThem.length})</div>
+        ${minesWaitingOnThem.map(t => `
+          <div class="waiting-item">
+            <span class="wi-text" style="cursor:pointer;" onclick="openTaskDetail(${t.row})">"${escapeHtml(t.action)}"${t.dependencyNote ? ` <span class="wi-note">(${escapeHtml(t.dependencyNote)})</span>` : ''}</span>
+          </div>
+        `).join('')}
+      ` : ''}
     </div>
   `;
 }
