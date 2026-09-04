@@ -154,6 +154,21 @@
   }
   .qt-toggle.active{ background:var(--ink); color:var(--card); border-color:var(--ink); }
 
+  .today-toggle{
+    font-family:inherit; font-size:12.5px; color:var(--muted);
+    background:var(--paper); border:1px solid var(--line); border-radius:20px;
+    padding:7px 14px; cursor:pointer;
+  }
+  .today-toggle.active{ background:var(--process); color:#fff; border-color:var(--process); }
+
+  .view-toggle{ display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .vt-btn{
+    font-family:inherit; font-size:14px; color:var(--muted); background:var(--card);
+    border:none; padding:7px 11px; cursor:pointer;
+  }
+  .vt-btn.active{ background:var(--ink); color:#fff; }
+  .vt-btn:first-child{ border-right:1px solid var(--line); }
+
   .notif-wrap{ position:relative; }
   .notif-bell{
     position:relative; background:none; border:1px solid var(--line); border-radius:50%;
@@ -175,6 +190,61 @@
   .notif-item:last-child{ border-bottom:none; }
   .notif-item.unread{ background:#FBF3E4; }
   .notif-empty{ padding:20px; text-align:center; color:var(--muted); font-size:12.5px; }
+
+  /* ===== List View ===== */
+  .list-view{
+    max-width:1000px; margin:0 auto; padding:28px 34px 40px 34px;
+  }
+  .list-group{ margin-bottom:28px; }
+  .list-group-head{
+    display:flex; align-items:center; gap:9px; margin-bottom:12px;
+    padding-bottom:8px; border-bottom:2px solid var(--line);
+  }
+  .list-group-head h3{ margin:0; font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
+  .list-row{
+    display:flex; align-items:center; gap:14px;
+    background:var(--card); border:1px solid var(--line); border-left:4px solid var(--muted);
+    border-radius:8px; padding:12px 16px; margin-bottom:8px; cursor:pointer;
+    box-shadow:var(--shadow);
+  }
+  .list-row.mine{ border-left-color:var(--gold); }
+  .list-row-main{ flex:1; min-width:0; }
+  .list-row-action{ font-size:14px; color:var(--ink); margin-bottom:3px; }
+  .list-row-meta{ font-size:11.5px; color:var(--muted); display:flex; gap:10px; flex-wrap:wrap; }
+
+  /* ===== Today Planner ===== */
+  .today-panel{ max-width:900px; margin:0 auto; padding:28px 34px 40px 34px; }
+  .today-section{ margin-bottom:30px; }
+  .today-section-head{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;
+  }
+  .today-section-head h3{ margin:0; font-size:15px; font-weight:700; }
+  .today-item{
+    display:flex; align-items:center; gap:12px;
+    background:var(--card); border:1px solid var(--line); border-radius:8px;
+    padding:12px 16px; margin-bottom:8px; box-shadow:var(--shadow);
+  }
+  .today-checkbox{
+    width:20px; height:20px; border-radius:50%; border:2px solid var(--gold);
+    cursor:pointer; flex-shrink:0; background:var(--card);
+  }
+  .today-checkbox.checked{ background:var(--done); border-color:var(--done); }
+  .today-item-text{ flex:1; font-size:13.5px; color:var(--ink); cursor:pointer; }
+  .today-item-owner{ font-size:11px; color:var(--muted); }
+  .today-remove{ background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; }
+  .today-remove:hover{ color:#B5493D; }
+  .today-add-picker{
+    background:var(--paper); border:1px dashed var(--line); border-radius:8px; padding:14px;
+  }
+  .today-add-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;
+  }
+  .today-add-item:last-child{ border-bottom:none; }
+  .today-summary-item{
+    background:#EFF7EF; border:1px solid #C6EFCE; border-radius:8px;
+    padding:10px 14px; margin-bottom:8px; font-size:13px; display:flex; align-items:center; gap:10px;
+  }
 
   .columns{
     display:grid;
@@ -346,6 +416,31 @@
     border:1px solid var(--line); border-radius:20px; padding:5px 9px; cursor:pointer; outline:none;
   }
 
+  .sub-progress{
+    display:flex; align-items:center; gap:8px; margin-top:8px; font-size:10.5px; color:var(--muted);
+  }
+  .sub-progress-bar{ flex:1; height:5px; background:var(--line); border-radius:4px; overflow:hidden; }
+  .sub-progress-fill{ height:100%; background:var(--done); }
+
+  .subtask-row{
+    display:flex; align-items:center; gap:9px; padding:6px 0;
+  }
+  .subtask-checkbox{
+    width:17px; height:17px; border-radius:4px; border:2px solid var(--gold); cursor:pointer;
+    flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff;
+  }
+  .subtask-checkbox.checked{ background:var(--done); border-color:var(--done); }
+  .subtask-text{ flex:1; font-size:13px; color:var(--ink); cursor:pointer; }
+  .subtask-text.done{ text-decoration:line-through; color:var(--muted); }
+  .subtask-remove{ background:none; border:none; color:var(--muted); cursor:pointer; font-size:13px; }
+  .subtask-remove:hover{ color:#B5493D; }
+  .subtask-add-row{ display:flex; gap:8px; margin-top:8px; }
+  .subtask-add-row input{
+    flex:1; font-family:inherit; font-size:12.5px; border:1px solid var(--line);
+    border-radius:8px; padding:8px 11px; outline:none;
+  }
+  .subtask-add-row input:focus{ border-color:var(--gold-soft); }
+
   /* ===== New Meeting Modal ===== */
   .meeting-modal-box{
     width:720px; max-width:94vw; max-height:88vh; overflow-y:auto;
@@ -512,7 +607,12 @@
     </div>
     <div style="display:flex; align-items:center; gap:14px;">
       <button class="btn primary" id="newMeetingBtn" style="display:none;">+ New Meeting</button>
+      <button class="today-toggle" id="todayToggleBtn" title="Today Planner">📅 Today</button>
       <button class="qt-toggle" id="qtToggleBtn" title="Sirf Quick Tasks dekhein">⚡ Quick Tasks</button>
+      <div class="view-toggle">
+        <button class="vt-btn active" id="kanbanViewBtn" title="Kanban view">▦</button>
+        <button class="vt-btn" id="listViewBtn" title="List view">☰</button>
+      </div>
       <div class="notif-wrap">
         <button class="notif-bell" id="notifBell">🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>
         <div class="notif-dropdown" id="notifDropdown" style="display:none;"></div>
@@ -528,7 +628,7 @@
   <div class="waiting-banner" id="waitingBanner"></div>
   <div class="waiting-banner" id="relationshipBanner"></div>
 
-  <div class="columns">
+  <div class="columns" id="kanbanColumns">
     <div class="col">
       <div class="col-head"><span class="dot" style="background:var(--pending)"></span><h3>Pending</h3><span class="col-count" id="countPending">0</span></div>
       <div class="dropzone" id="colPending" data-status="Pending"></div>
@@ -546,6 +646,10 @@
       <div class="dropzone" id="colLost" data-status="Lost"></div>
     </div>
   </div>
+
+  <div class="list-view" id="listView" style="display:none;"></div>
+
+  <div class="today-panel" id="todayPanel" style="display:none;"></div>
 
   <div class="quickadd-wrap">
     <div class="quickadd-box">
@@ -644,6 +748,8 @@ let tasks = [];
 let currentUser = null;
 let viewFilter = 'mine'; // 'mine' | 'all' | a specific owner name
 let quickTasksOnly = false;
+let boardMode = 'kanban'; // 'kanban' | 'list' | 'today'
+let lastNonTodayMode = 'kanban';
 let draggedCard = null;
 
 function initials(name){
@@ -731,6 +837,38 @@ document.getElementById('qtToggleBtn').addEventListener('click', ()=>{
   renderBoard();
 });
 
+document.getElementById('kanbanViewBtn').addEventListener('click', ()=>{
+  boardMode = 'kanban';
+  lastNonTodayMode = 'kanban';
+  document.getElementById('kanbanViewBtn').classList.add('active');
+  document.getElementById('listViewBtn').classList.remove('active');
+  document.getElementById('todayToggleBtn').classList.remove('active');
+  renderBoard();
+});
+
+document.getElementById('listViewBtn').addEventListener('click', ()=>{
+  boardMode = 'list';
+  lastNonTodayMode = 'list';
+  document.getElementById('listViewBtn').classList.add('active');
+  document.getElementById('kanbanViewBtn').classList.remove('active');
+  document.getElementById('todayToggleBtn').classList.remove('active');
+  renderBoard();
+});
+
+document.getElementById('todayToggleBtn').addEventListener('click', ()=>{
+  if(boardMode === 'today'){
+    boardMode = lastNonTodayMode;
+    document.getElementById('todayToggleBtn').classList.remove('active');
+    document.getElementById(lastNonTodayMode === 'kanban' ? 'kanbanViewBtn' : 'listViewBtn').classList.add('active');
+  } else {
+    boardMode = 'today';
+    document.getElementById('todayToggleBtn').classList.add('active');
+    document.getElementById('kanbanViewBtn').classList.remove('active');
+    document.getElementById('listViewBtn').classList.remove('active');
+  }
+  renderBoard();
+});
+
 function cardHTML(task){
   const mine = task.owner === currentUser;
   const dueStr = task.dueDate ? `Due ${task.dueDate}` : '';
@@ -771,6 +909,14 @@ function cardHTML(task){
   ` : '';
 
   const commentCount = task.comments ? task.comments.length : 0;
+  const subtasks = task.subtasks || [];
+  const subDone = subtasks.filter(s=>s.done).length;
+  const subProgress = subtasks.length > 0 ? `
+    <div class="sub-progress">
+      <div class="sub-progress-bar"><div class="sub-progress-fill" style="width:${Math.round((subDone/subtasks.length)*100)}%"></div></div>
+      <span>☑ ${subDone}/${subtasks.length}</span>
+    </div>
+  ` : '';
 
   return `
     <div class="card ${mine ? 'mine' : 'locked'}" draggable="${mine}" data-row="${task.row}" onclick="openTaskDetail(${task.row})">
@@ -782,6 +928,7 @@ function cardHTML(task){
       </div>
       ${task.assignedBy && task.assignedBy !== task.owner ? `<div class="card-notes" style="font-style:normal; color:var(--muted);">Assigned by ${escapeHtml(task.assignedBy)}</div>` : ''}
       ${task.notes ? `<div class="card-notes">${escapeHtml(task.notes)}</div>` : ''}
+      ${subProgress}
       ${depBlock}
       <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px; gap:8px;">
         ${statusDropdown}
@@ -818,6 +965,24 @@ function visibleTasks(){
 }
 
 function renderBoard(){
+  document.getElementById('kanbanColumns').style.display = boardMode === 'kanban' ? 'grid' : 'none';
+  document.getElementById('listView').style.display = boardMode === 'list' ? 'block' : 'none';
+  document.getElementById('todayPanel').style.display = boardMode === 'today' ? 'block' : 'none';
+
+  if(boardMode === 'kanban'){
+    renderKanban();
+  } else if(boardMode === 'list'){
+    renderListView();
+  } else if(boardMode === 'today'){
+    renderTodayPanel();
+  }
+
+  renderWaitingBanner();
+  renderRelationshipBanner();
+  renderNotifications();
+}
+
+function renderKanban(){
   const cols = {
     'Pending': document.getElementById('colPending'),
     'In Progress': document.getElementById('colProcess'),
@@ -843,10 +1008,48 @@ function renderBoard(){
   document.getElementById('countDone').textContent = scoped.filter(t=>t.status==='Done').length;
   document.getElementById('countLost').textContent = scoped.filter(t=>t.status==='Lost').length;
 
-  renderWaitingBanner();
-  renderRelationshipBanner();
-  renderNotifications();
   attachDragHandlers();
+}
+
+function renderListView(){
+  const scoped = visibleTasks();
+  const el = document.getElementById('listView');
+  const groups = [
+    { status: 'Pending', label: 'Pending', color: 'var(--pending)' },
+    { status: 'In Progress', label: 'In Process', color: 'var(--process)' },
+    { status: 'Done', label: 'Complete', color: 'var(--done)' },
+    { status: 'Lost', label: 'Lost', color: 'var(--lost)' }
+  ];
+
+  el.innerHTML = groups.map(g=>{
+    const list = scoped.filter(t => (t.status || 'Pending') === g.status);
+    if(list.length === 0) return '';
+    return `
+      <div class="list-group">
+        <div class="list-group-head"><span class="dot" style="background:${g.color}"></span><h3>${g.label}</h3><span class="col-count">${list.length}</span></div>
+        ${list.map(t => listRowHTML(t)).join('')}
+      </div>
+    `;
+  }).join('') || '<div class="empty-state">Koi task nahi</div>';
+}
+
+function listRowHTML(task){
+  const mine = task.owner === currentUser;
+  const subCount = task.subtasks ? task.subtasks.length : 0;
+  const subDone = task.subtasks ? task.subtasks.filter(s=>s.done).length : 0;
+  return `
+    <div class="list-row ${mine ? 'mine' : ''}" onclick="openTaskDetail(${task.row})">
+      <div class="list-row-main">
+        <div class="list-row-action">${task.meetingTopic ? `<span class="card-topic" style="margin-right:6px;">${escapeHtml(task.meetingTopic)}</span>` : ''}${escapeHtml(task.action)}</div>
+        <div class="list-row-meta">
+          <span><span class="owner-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${mine?'var(--gold)':'var(--ink)'};margin-right:4px;"></span>${escapeHtml(task.owner)}</span>
+          ${task.dueDate ? `<span>Due ${escapeHtml(task.dueDate)}</span>` : ''}
+          ${subCount > 0 ? `<span>☑ ${subDone}/${subCount} subtasks</span>` : ''}
+          ${task.comments && task.comments.length ? `<span>💬 ${task.comments.length}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function renderWaitingBanner(){
@@ -870,6 +1073,89 @@ function renderWaitingBanner(){
       }).join('')}
     </div>
   `;
+}
+
+function renderTodayPanel(){
+  const todayIso = toISODate(new Date());
+  const myTasks = tasks.filter(t => t.owner === currentUser);
+
+  const planned = myTasks.filter(t => t.plannedDate === todayIso && t.status !== 'Done');
+  const completedToday = myTasks.filter(t => t.status === 'Done' && t.completionDate === todayIso);
+  const available = myTasks.filter(t => (t.status === 'Pending' || t.status === 'In Progress') && t.plannedDate !== todayIso);
+
+  const el = document.getElementById('todayPanel');
+  el.innerHTML = `
+    <div class="today-section">
+      <div class="today-section-head"><h3>📋 Today's Plan (${planned.length})</h3></div>
+      ${planned.length === 0 ? '<div class="empty-state">Koi task plan nahi kiya abhi. Neeche se add karein.</div>' :
+        planned.map(t => `
+          <div class="today-item">
+            <div class="today-checkbox" onclick="markTodayDone(${t.row})" title="Complete mark karein"></div>
+            <div class="today-item-text" onclick="openTaskDetail(${t.row})">${escapeHtml(t.action)}<div class="today-item-owner">${escapeHtml(t.status)}</div></div>
+            <button class="today-remove" onclick="removeFromToday(${t.row})" title="Plan se hatayein">✕</button>
+          </div>
+        `).join('')
+      }
+    </div>
+
+    <div class="today-section">
+      <div class="today-section-head"><h3>➕ Plan mein add karein</h3></div>
+      <div class="today-add-picker">
+        ${available.length === 0 ? '<div style="font-size:12.5px; color:var(--muted);">Koi aur pending/in-process task nahi</div>' :
+          available.map(t => `
+            <div class="today-add-item">
+              <span>${escapeHtml(t.action)} <span style="color:var(--muted);">(${escapeHtml(t.status)})</span></span>
+              <button class="btn-mini" onclick="addToToday(${t.row})">+ Add</button>
+            </div>
+          `).join('')
+        }
+      </div>
+    </div>
+
+    <div class="today-section">
+      <div class="today-section-head"><h3>✅ Aaj Complete Kiye (${completedToday.length})</h3></div>
+      ${completedToday.length === 0 ? '<div class="empty-state">Abhi tak koi task complete nahi hua</div>' :
+        completedToday.map(t => `
+          <div class="today-summary-item">✅ <span onclick="openTaskDetail(${t.row})" style="cursor:pointer;">${escapeHtml(t.action)}</span></div>
+        `).join('')
+      }
+    </div>
+  `;
+}
+
+function markTodayDone(row){
+  changeTaskStatus(row, 'Done');
+}
+
+async function addToToday(row){
+  const todayIso = toISODate(new Date());
+  const task = tasks.find(t => String(t.row) === String(row));
+  if(task) task.plannedDate = todayIso;
+  renderBoard();
+  try{
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ type:'planToday', row: Number(row), date: todayIso })
+    });
+  }catch(err){
+    showToast('Save nahi ho saka');
+  }
+}
+
+async function removeFromToday(row){
+  const task = tasks.find(t => String(t.row) === String(row));
+  if(task) task.plannedDate = '';
+  renderBoard();
+  try{
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ type:'planToday', row: Number(row), date: '' })
+    });
+  }catch(err){
+    showToast('Save nahi ho saka');
+  }
 }
 
 function renderRelationshipBanner(){
@@ -1176,6 +1462,35 @@ function openTaskDetail(row){
     `;
   }
 
+  const mineForSub = task.owner === currentUser;
+  const subtasks = task.subtasks || [];
+  const subDone = subtasks.filter(s=>s.done).length;
+  const subtasksBlock = `
+    <div class="detail-section">
+      <div class="detail-section-label">Subtasks${subtasks.length ? ` (${subDone}/${subtasks.length})` : ''}</div>
+      ${subtasks.length > 0 ? `
+        <div class="sub-progress" style="margin-top:0; margin-bottom:10px;">
+          <div class="sub-progress-bar"><div class="sub-progress-fill" style="width:${Math.round((subDone/subtasks.length)*100)}%"></div></div>
+        </div>
+      ` : ''}
+      <div id="subtasksList">
+        ${subtasks.map((s, i) => `
+          <div class="subtask-row">
+            <div class="subtask-checkbox ${s.done ? 'checked' : ''}" onclick="toggleSubtask(${task.row}, ${i})">${s.done ? '✓' : ''}</div>
+            <span class="subtask-text ${s.done ? 'done' : ''}" onclick="toggleSubtask(${task.row}, ${i})">${escapeHtml(s.text)}</span>
+            ${mineForSub ? `<button class="subtask-remove" onclick="removeSubtask(${task.row}, ${i})">✕</button>` : ''}
+          </div>
+        `).join('')}
+      </div>
+      ${mineForSub ? `
+        <div class="subtask-add-row">
+          <input type="text" id="newSubtaskInput" placeholder="Naya step likhein…" onkeydown="if(event.key==='Enter') addSubtask(${task.row})">
+          <button class="btn-mini" onclick="addSubtask(${task.row})">Add</button>
+        </div>
+      ` : ''}
+    </div>
+  `;
+
   const comments = task.comments || [];
   const commentsBlock = `
     <div class="detail-section">
@@ -1211,6 +1526,7 @@ function openTaskDetail(row){
     ${task.notes ? `<div class="detail-section"><div class="detail-section-label">Notes</div><div class="detail-notes">${escapeHtml(task.notes)}</div></div>` : ''}
     ${ownDep}
     ${incomingBlock}
+    ${subtasksBlock}
     ${commentsBlock}
     ${editLogBlock}
     <div class="modal-actions">
@@ -1258,6 +1574,66 @@ async function submitComment(row){
   }catch(err){
     showToast('Comment save nahi ho saka');
   }
+}
+
+// ===== Subtasks =====
+async function saveSubtasks(row, subtasksArray){
+  try{
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ type:'updateSubtasks', row: Number(row), subtasks: subtasksArray })
+    });
+  }catch(err){
+    showToast('Subtask save nahi ho saka');
+  }
+}
+
+function checkAutoComplete(task){
+  // Agar sab subtasks complete ho chuke hon aur task abhi Done na ho, to usay Done kar dein
+  if(task.subtasks && task.subtasks.length > 0){
+    const allDone = task.subtasks.every(s => s.done);
+    if(allDone && task.status !== 'Done'){
+      changeTaskStatus(task.row, 'Done');
+      showToast('Sab subtasks complete — task bhi Done ho gaya');
+    }
+  }
+}
+
+function toggleSubtask(row, index){
+  const task = tasks.find(t => String(t.row) === String(row));
+  if(!task || !task.subtasks || !task.subtasks[index]) return;
+
+  task.subtasks[index].done = !task.subtasks[index].done;
+  openTaskDetail(row);
+  renderBoard();
+  saveSubtasks(row, task.subtasks);
+  checkAutoComplete(task);
+}
+
+function addSubtask(row){
+  const input = document.getElementById('newSubtaskInput');
+  const text = input.value.trim();
+  if(!text) return;
+
+  const task = tasks.find(t => String(t.row) === String(row));
+  if(!task) return;
+  if(!task.subtasks) task.subtasks = [];
+
+  task.subtasks.push({ text, done: false });
+  openTaskDetail(row);
+  renderBoard();
+  saveSubtasks(row, task.subtasks);
+}
+
+function removeSubtask(row, index){
+  const task = tasks.find(t => String(t.row) === String(row));
+  if(!task || !task.subtasks) return;
+
+  task.subtasks.splice(index, 1);
+  openTaskDetail(row);
+  renderBoard();
+  saveSubtasks(row, task.subtasks);
 }
 
 function openEditForm(row){
@@ -1484,7 +1860,10 @@ async function submitQuickAdd(){
       dependencyResponse: '', dependencyResolved: false,
       assignedBy: currentUser,
       editLog: '',
-      comments: []
+      comments: [],
+      plannedDate: '',
+      completionDate: '',
+      subtasks: []
     });
     renderBoard();
     showToast('Task added for ' + matchedOwner);
@@ -1759,7 +2138,10 @@ async function saveMeetingTasks(){
         dependencyResponse:'', dependencyResolved:false,
         assignedBy: rowAssignedBy,
         editLog: '',
-        comments: []
+        comments: [],
+        plannedDate: '',
+        completionDate: '',
+        subtasks: []
       });
     }
 
