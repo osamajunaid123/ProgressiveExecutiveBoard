@@ -211,6 +211,7 @@
   .list-row-main{ flex:1; min-width:0; }
   .list-row-action{ font-size:14px; color:var(--ink); margin-bottom:3px; }
   .list-row-meta{ font-size:11.5px; color:var(--muted); display:flex; gap:10px; flex-wrap:wrap; }
+  .list-row-status{ flex-shrink:0; }
 
   /* ===== Today Planner ===== */
   .today-panel{ max-width:900px; margin:0 auto; padding:28px 34px 40px 34px; }
@@ -1037,6 +1038,16 @@ function listRowHTML(task){
   const mine = task.owner === currentUser;
   const subCount = task.subtasks ? task.subtasks.length : 0;
   const subDone = task.subtasks ? task.subtasks.filter(s=>s.done).length : 0;
+
+  const statusDropdown = mine ? `
+    <select class="status-dropdown" onclick="event.stopPropagation()" onchange="changeStatusDropdown(${task.row}, this.value)">
+      <option value="Pending" ${task.status==='Pending'?'selected':''}>Pending</option>
+      <option value="In Progress" ${task.status==='In Progress'?'selected':''}>In Process</option>
+      <option value="Done" ${task.status==='Done'?'selected':''}>Complete</option>
+      <option value="Lost" ${task.status==='Lost'?'selected':''}>Lost</option>
+    </select>
+  ` : `<span class="lock-badge">view only</span>`;
+
   return `
     <div class="list-row ${mine ? 'mine' : ''}" onclick="openTaskDetail(${task.row})">
       <div class="list-row-main">
@@ -1048,6 +1059,7 @@ function listRowHTML(task){
           ${task.comments && task.comments.length ? `<span>💬 ${task.comments.length}</span>` : ''}
         </div>
       </div>
+      <div class="list-row-status">${statusDropdown}</div>
     </div>
   `;
 }
