@@ -212,6 +212,12 @@
   .list-row-action{ font-size:14px; color:var(--ink); margin-bottom:3px; }
   .list-row-meta{ font-size:11.5px; color:var(--muted); display:flex; gap:10px; flex-wrap:wrap; }
   .list-row-status{ flex-shrink:0; }
+  .badge-sub, .badge-dep{
+    display:inline-flex; align-items:center; gap:3px;
+    padding:2px 7px; border-radius:10px; font-weight:600;
+  }
+  .badge-sub{ background:rgba(76,122,90,0.12); color:var(--done); }
+  .badge-dep{ background:rgba(60,110,143,0.12); color:var(--process); }
 
   /* ===== Today Planner ===== */
   .today-panel{ max-width:900px; margin:0 auto; padding:28px 34px 40px 34px; }
@@ -925,7 +931,10 @@ function cardHTML(task){
       <div class="card-action">${escapeHtml(task.action)}</div>
       <div class="card-meta">
         <span class="card-owner"><span class="owner-dot"></span>${escapeHtml(task.owner)}</span>
-        <span class="card-due">${dueStr}${!mine ? ' &nbsp;·&nbsp; <span class="lock-badge">view only</span>' : ''}</span>
+        <span class="card-due">
+          ${subtasks.length > 0 ? `<span class="badge-sub">☑ ${subDone}/${subtasks.length}</span> ` : ''}
+          ${task.dependencyOwner ? `<span class="badge-dep">${task.dependencyResolved ? '✓' : '⛓'} ${escapeHtml(task.dependencyOwner)}</span> ` : ''}
+          ${dueStr}${!mine ? ' &nbsp;·&nbsp; <span class="lock-badge">view only</span>' : ''}</span>
       </div>
       ${task.assignedBy && task.assignedBy !== task.owner ? `<div class="card-notes" style="font-style:normal; color:var(--muted);">Assigned by ${escapeHtml(task.assignedBy)}</div>` : ''}
       ${task.notes ? `<div class="card-notes">${escapeHtml(task.notes)}</div>` : ''}
@@ -1055,7 +1064,8 @@ function listRowHTML(task){
         <div class="list-row-meta">
           <span><span class="owner-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${mine?'var(--gold)':'var(--ink)'};margin-right:4px;"></span>${escapeHtml(task.owner)}</span>
           ${task.dueDate ? `<span>Due ${escapeHtml(task.dueDate)}</span>` : ''}
-          ${subCount > 0 ? `<span>☑ ${subDone}/${subCount} subtasks</span>` : ''}
+          ${subCount > 0 ? `<span class="badge-sub">☑ ${subDone}/${subCount}</span>` : ''}
+          ${task.dependencyOwner ? `<span class="badge-dep">${task.dependencyResolved ? '✓' : '⛓'} ${escapeHtml(task.dependencyOwner)}</span>` : ''}
           ${task.comments && task.comments.length ? `<span>💬 ${task.comments.length}</span>` : ''}
         </div>
       </div>
