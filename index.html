@@ -1484,7 +1484,8 @@ function openTaskDetail(row){
     `;
   }
 
-  const mineForSub = task.owner === currentUser;
+  const mineForSub = task.owner === currentUser || task.assignedBy === currentUser;
+  const canCheckSub = task.owner === currentUser;
   const subtasks = task.subtasks || [];
   const subDone = subtasks.filter(s=>s.done).length;
   const subtasksBlock = `
@@ -1498,8 +1499,8 @@ function openTaskDetail(row){
       <div id="subtasksList">
         ${subtasks.map((s, i) => `
           <div class="subtask-row">
-            <div class="subtask-checkbox ${s.done ? 'checked' : ''}" onclick="toggleSubtask(${task.row}, ${i})">${s.done ? '✓' : ''}</div>
-            <span class="subtask-text ${s.done ? 'done' : ''}" onclick="toggleSubtask(${task.row}, ${i})">${escapeHtml(s.text)}</span>
+            <div class="subtask-checkbox ${s.done ? 'checked' : ''}" ${canCheckSub ? `onclick="toggleSubtask(${task.row}, ${i})"` : 'style="cursor:default;"'}>${s.done ? '✓' : ''}</div>
+            <span class="subtask-text ${s.done ? 'done' : ''}" ${canCheckSub ? `onclick="toggleSubtask(${task.row}, ${i})"` : 'style="cursor:default;"'}>${escapeHtml(s.text)}</span>
             ${mineForSub ? `<button class="subtask-remove" onclick="removeSubtask(${task.row}, ${i})">✕</button>` : ''}
           </div>
         `).join('')}
@@ -1889,6 +1890,7 @@ async function submitQuickAdd(){
     });
     renderBoard();
     showToast('Task added for ' + matchedOwner);
+    openTaskDetail(result.row);
   }catch(err){
     showToast('Add nahi ho saka — dobara try karein');
   }
